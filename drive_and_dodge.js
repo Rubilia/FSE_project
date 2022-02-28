@@ -4,6 +4,6 @@ function setup() {
 
 function draw() {
   
-
+rect(10,  20, 30 ,40);
 circle(10, 10, 1);
 }
