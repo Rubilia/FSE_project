@@ -1,7 +1,3 @@
-function setup() {
-  createCanvas(400, 400);
-}
-
-function draw() {
-  background(220);
-}
+// Hyperparameters
+const canvas_width = 1000;
+const canvas_height = 1300;
