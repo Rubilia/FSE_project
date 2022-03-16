@@ -1,9 +1,3 @@
-function setup() {
-  createCanvas(400, 400);
-}
-
-function draw() {
-  
-rect(10,  20, 30 ,40);
-circle(10, 10, 1);
-}
+// Hyperparameters
+const canvas_width = 1000;
+const canvas_height = 1300;
