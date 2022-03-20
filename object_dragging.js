@@ -5,10 +5,4 @@ function setup() {
 }
 function draw_odbg(){
   background(background_od);
-<<<<<<< Updated upstream
-
 }
-
-=======
-}
->>>>>>> Stashed changes
