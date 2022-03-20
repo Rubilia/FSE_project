@@ -1,8 +1,8 @@
+let background_od;
 function setup() {
   createCanvas(1000, 1300);
+  background_od = loadImage('assests/background_od.png');
 }
-
-function draw(){
-  fill(203,123,234);
-  rect(0,0,900,1200);
+function draw_odbg(){
+  background(background_od);
 }
