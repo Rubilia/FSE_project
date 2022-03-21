@@ -5,5 +5,5 @@ function setup() {
 }
 function draw(){
   background(background_od);
-  
+  a = 0;
 }
