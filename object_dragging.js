@@ -5,5 +5,15 @@ function setup() {
 }
 function draw(){
   background(background_od);
-  a = 0;
+  draw_main_menu();
+}
+
+function draw_main_menu(){
+  fill('white')
+    // Draw settings btn
+    settings = createImg('assets/settings_tiles_icon.png');
+    settings.position(900, 1200);
+    settings.size(90, 90);
+    settings.mousePressed(draw_settings_menu);
+
 }
