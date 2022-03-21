@@ -2,19 +2,47 @@
 const canvas_width = 1000;
 const canvas_height = 1300;
 
-let tile_speed = 300
-const tile_size_x = 200
-let tiles = []
+
+let tile_speed = 300;
+const tile_size_x = 200;
+let active_screen = 0;
+/* 
+0 - 
+*/
+
+// Variables for gradient background
+const min_bg_brightness = 70;
+let bg_color_change_speed_1 = [-.3, .1, -.1];
+let bg_color_change_speed_2 = [.1, -.3, .1];
+
+let bg_c1 = [0, 0, 100];
+let bg_c2 = [210, 100, 80];
 
 function setup() {
     cnv = createCanvas(canvas_width, canvas_height);
     cnv.mouseClicked(addTile);
+    // c1 = color(bg_c1[0], bg_c1[1], bg_c1[2]);
+    // c2 = color(63, 191, 191);
+    
+    // for(let y=0; y<height; y++){
+    //   n = map(y,0,height,0,1);
+    //   let newc = lerpColor(c1, c2, n);
+    //   stroke(newc);
+    //   line(0,y,width, y);
+    // }
     draw_main_menu();
   }
   
   function draw() {
-    background("grey");
-    draw_main_menu();
+    // return;
+    if (active_screen == 0){
+      // Draw game menu
+      draw_gradient_background();
+      draw_main_menu();
+      
+      return;
+    }
+    
 
     dt = deltaTime / 1000;
     for(i = 0 ; i < tiles.length ;i++){
@@ -22,9 +50,64 @@ function setup() {
     }
   }
 
+  function draw_gradient_background(){
+    // Switch to HSB
+    colorMode(HSB, 360, 100, 100);
+
+    let c1 = color(bg_c1[0], bg_c1[1], bg_c1[2]);
+    let c2 = color(bg_c2[0], bg_c2[1], bg_c2[2]);
+
+    for(let y=0; y<canvas_height; y++){
+      n = map(y,0,canvas_height,0,1);
+      let newc = lerpColor(c1,c2,n);
+      stroke(newc);
+      line(0,y,canvas_width, y);
+    }
+
+    // Change colors
+    bg_c1[0] = (bg_c1[0] + (bg_color_change_speed_1[0] * random(0.8, 1.2)));
+    if (bg_c1[0] <= 0 || bg_c1[0] >= 360){
+      bg_color_change_speed_1[0] *= -1;
+      bg_c1[0] = max(0, min(bg_c1[0], 360));
+    }
+      
+    bg_c2[0] = (bg_c2[0] + (bg_color_change_speed_2[0] * random(0.8, 1.2)));
+    if (bg_c2[0] <= 0 || bg_c2[0] >= 360){
+      bg_color_change_speed_2[0] *= -1;
+      bg_c2[0] = max(0, min(bg_c2[0], 360));
+    }
+
+    bg_c1[1] = (bg_c1[1] + (bg_color_change_speed_1[1] * random(0.8, 1.2)));
+    if (bg_c1[1] <= 0 || bg_c1[1] >= 100){
+      bg_color_change_speed_1[1] *= -1;
+      bg_c1[1] = max(0, min(bg_c1[1], 100));
+    }
+
+    bg_c2[1] = (bg_c2[1] + (bg_color_change_speed_2[1] * random(0.8, 1.2)));
+    if (bg_c2[1] <= 0 || bg_c2[1] >= 100){
+      bg_color_change_speed_2[1] *= -1;
+      bg_c2[1] = max(0, min(bg_c2[1], 100));
+    }
+
+    bg_c1[2] = (bg_c1[2] + (bg_color_change_speed_1[2] * random(0.8, 1.2)));
+    if (bg_c1[2] <= min_bg_brightness || bg_c1[2] >= 100){
+      bg_color_change_speed_1[2] *= -1;
+      bg_c1[2] = max(min_bg_brightness, min(bg_c1[2], 100));
+    }
+
+    bg_c2[2] = max((bg_c2[2] + (bg_color_change_speed_2[2] * random(0.8, 1.2))));
+    if (bg_c2[2] <= min_bg_brightness || bg_c2[2] >= 100){
+      bg_color_change_speed_2[2] *= -1;
+      bg_c2[2] = max(min_bg_brightness, min(bg_c2[2], 100));
+    }
+
+    // Switch back to RGB
+    colorMode(RGB, 255, 255, 255, 255);
+  }
+
   function draw_main_menu(){
     settings = createImg('assets/settings_tiles_icon.png');
-    settings.position(20, 20);
+    settings.position(canvas_width - 100, canvas_height - 100);
     settings.size(80, 80);
     settings.mousePressed(draw_settings_menu);
   }
@@ -97,3 +180,5 @@ class TileSizes {
   static enormous = new TileSizes(tile_size_x, 800)
 
 }
+
+// Utils
