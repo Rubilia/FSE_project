@@ -121,6 +121,36 @@ function setup() {
     a = 0
   }
 
+class CallHandler{
+  constructor(){
+    this.callables = [];
+    this.internal_states = [];
+  }
+
+  add_callable(callable, repetitions, args={}){
+    append(this.callables, [callable, repetitions]);
+    append(this.internal_states, args);
+  }
+
+  execute(){
+    new_callables = [];
+    new_states = [];
+    for (let i = 0; i < this.callables.length; i++){
+        call = this.callable[i][0];
+        reps = this.callables[i][1] - 1;
+        previous_state = this.internal_states[i];
+        
+        state = call(previous_state);
+        if (reps > 0){
+          append(new_callables, [call, state]);
+          append(new_states, state);
+        }
+    }
+    this.callables = new_callables;
+    this.internal_states = new_states;
+  }
+}
+
 class TileManager{
   constructor(){
       this.tiles = []
