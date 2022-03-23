@@ -7,7 +7,7 @@ let tile_speed = 300;
 let active_screen = 0;
 /* 
 0 - main menu of the game
-1 - main menu with the settings menu
+1 - main menu + animation of settings menu (open animation)
 */
 
 let CHandler;
@@ -40,11 +40,11 @@ function setup() {
     CHandler = new CallHandler();
 
     canvas = createCanvas(canvas_width, canvas_height);
-    canvas.mouseClicked(addTile);
+    // canvas.mouseClicked(addTile);
 
     // Add tasks to draw basic UI
-    CHandler.add_callable("draw_gradient_background", draw_gradient_background, -1, {})
-    CHandler.add_callable("draw_main_menu", draw_main_menu, -1, {"settings_angle": 0, "angle_rate": PI / 180})
+    CHandler.add_callable("draw_gradient_background", draw_gradient_background, -1, {});
+    CHandler.add_callable("draw_main_menu", draw_main_menu, -1, {"settings_angle": 0, "angle_rate": PI / 180});
   }
   
   function draw() {
@@ -52,32 +52,81 @@ function setup() {
       CHandler.execute();
   }
 
+  // Handles all mouse clicks through CallHandler
+  function mouseClicked() {
+      CHandler.execute_click();
+  }
+
 
   function draw_main_menu(args){
     angle = args["settings_angle"] + args["angle_rate"];
+
+    // Rotation
+    translate(canvas_width - 60, canvas_height - 60);
+    imageMode(CENTER);
     rotate(angle);
-    settings_btn = image(settings_img, canvas_width - 100, canvas_height - 100, 80, 80);
+
+    let f1 = ((args) => {
+      if (!(active_screen == 0 || active_screen == 1)) return false;
+      d = (dist(mouseX, mouseY, canvas_width - 60, canvas_height - 60));
+      return (dist(mouseX, mouseY, canvas_width - 100, canvas_height - 100)) <= 70;
+    });
+
+    let f2 = ((args) => {
+      // Function called when settings button is clicked
+      active_screen = ;
+      return args;
+    });
+
+    settings_btn = image(settings_img, 0, 0, 80, 80);
+    CHandler.add_clickable_region("settings_btn_click", f1, f2, {});
+
+
     // settings_btn.mousePressed(() => {active_screen = 1;});
-    rotate(0);
+    
+    rotate(-angle);
+    translate(60 - canvas_width, 60 - canvas_height);
     
     args["settings_angle"] = angle;
     return args;
-  }
-
-  function draw_settings_menu(){
-    fill(color(0, 0, 0, 255));
-    rect(0, 0, canvas_width, canvas_height);
-  }
-
-  function addTile(){
-    append(tiles, new Tile(tile_size_x, 800, tile_speed, random([0, 1, 2, 3])));
-    a = 0
   }
 
 class CallHandler{
   constructor(){
     this.callables = [];
     this.internal_states = [];
+
+    this.click_callables = [];
+    this.click_internal_states = [];
+  }
+
+  add_clickable_region(name, is_inside_callable, click_callable, args){
+    // Remove a callbacks with the same name
+    this.remove_clickable_region(name);
+
+    args["call_handler"] = this;
+    args["name"] = name;
+
+    append(this.click_callables, [is_inside_callable, click_callable, name]);
+    append(this.click_internal_states, args);
+  }
+
+  // Function to remove callables by name
+  remove_clickable_region(name){
+    let new_click_callables = [];
+    let new_click_internal_states = [];
+    for (let i = 0; i < this.click_callables.length; i++){
+      // Remove callables with a given name
+      if (name == this.click_callables[i][2])
+        continue;
+  
+      // If a callable has a different name - ignore it
+      append(new_click_callables, this.click_callables[i]);
+      append(new_click_internal_states, this.click_callables[i]);
+    }
+
+    this.click_callables = new_click_callables;
+    this.click_internal_states = new_click_internal_states;
   }
 
   add_callable(name, callable, repetitions, args={}){
@@ -90,7 +139,6 @@ class CallHandler{
 
   // Executes callables from list, updates internal states and number of reps left
   execute(){
-    // draw_gradient_background(0);
     let new_callables = [];
     let new_states = [];
     for (let i = 0; i < this.callables.length; i++){
@@ -108,6 +156,19 @@ class CallHandler{
     }
     this.callables = new_callables;
     this.internal_states = new_states;
+  }
+
+  // Execute a given callbacks if user clickes inside a given region
+  execute_click(){
+    for (let i = 0; i < this.click_callables.length; i++){
+      let is_inside_callable = this.click_callables[i][0];
+      if (!is_inside_callable())
+        continue;
+
+      let call = this.click_callables[i][1];
+
+      this.click_internal_states[i] = call(this.click_internal_states[i]);
+    }
   }
 
   // Function to remove callables by name
