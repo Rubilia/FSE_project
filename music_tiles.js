@@ -24,14 +24,17 @@ let bg_c2 = [210, 100, 80];
 
 // Variables gor buttons and etc
 let canvas;
-let settings_btn;
 
 // Preloaded images
 let settings_img;
+let start_btn;
 
 function preload_images(){
   settings_img = loadImage('assets/settings_tiles_icon.png');
   settings_img.resize(80, 80);
+
+  start_btn = loadImage('assets/button_start.png');
+  start_btn.resize(400, 120);
 }
 
 function draw() {
@@ -56,8 +59,8 @@ function setup() {
 
     // Add tasks to draw basic UI
     CHandler.add_callable("draw_gradient_background", draw_gradient_background, -1, {});
-    CHandler.add_callable("random_tiles_animation", draw_random_tiles, -1, {"tiles_manager": new TileManager(), "idle": 2})
-    CHandler.add_callable("draw_main_menu", draw_main_menu, -1, {"settings_angle": 0, "angle_rate": PI / 30, "do_rotation": false});
+    CHandler.add_callable("random_tiles_animation", draw_random_tiles, -1, {"tiles_manager": new TileManager(), "idle": 8})
+    CHandler.add_callable("draw_main_menu", draw_main_menu, -1, {"settings_angle": 0, "angle_rate": PI / 30, "do_rotation": false, "show_start_btn": true});
   }
   
   function draw_random_tiles(args){
@@ -93,10 +96,9 @@ function setup() {
         rotate(angle);
     }
 
-    let identify_region_callback = ((args) => {
+    let identify_region_callback = (() => {
         if (!(active_screen == 0 || active_screen == 1)) return false;
-        d = (dist(mouseX, mouseY, canvas_width - 60, canvas_height - 60));
-        return (dist(mouseX, mouseY, canvas_width - 100, canvas_height - 100)) <= 70;
+        return (dist(mouseX, mouseY, canvas_width - 60, canvas_height - 60)) <= 70;
     });
 
     let button_pressed_callbak = ((args) => {
@@ -126,7 +128,7 @@ function setup() {
         return args;
     });
 
-    settings_btn = image(settings_img, 0, 0, 80, 80);
+    image(settings_img, 0, 0, 80, 80);
     CHandler.add_clickable_region("settings_btn_click", identify_region_callback, button_pressed_callbak, {});
 
     if (args["do_rotation"]){
@@ -136,10 +138,45 @@ function setup() {
     translate(60 - canvas_width, 60 - canvas_height);
 
     // Draw buttons
+    if (args["show_start_btn"]){
 
+        image(start_btn, canvas_width / 2, canvas_height / 2, 420, 124);
+        CHandler.add_clickable_region("start_button", (() => {
+          if (!(active_screen == 0)){
+              return false
+          }
+          return abs(mouseX - canvas_width / 2) < 210 && abs(mouseY - canvas_height / 2) < 62;
+        }), ((args_start_btn) => {
+              if (!args_start_btn["clickable"]){return args_start_btn; }
+
+              // Button can only be pressed once - disable its rendering
+              // args["show_start_btn"] = false;
+              // args_start_btn["clickable"] = false;
+
+              // Start animation
+              CHandler.add_callable("start_button_flies_away", start_btn_animation, 120, {"t": 0, "w": 0});
+
+              return args_start_btn;
+        }), {"clickable": true});
+    }
     
     return args;
   }
+
+function start_btn_animation(args){
+    t = args["t"] + 1;
+    w = args["w"] + PI / 100;
+    imageMode(CENTER);
+    rotate(w);
+    x_offset = t * 2;
+    y_offset = t * t;
+    image(start_btn, canvas_width / 2 + t, canvas_height / 2 - y_offset, 420, 124);
+    rotate(-w);
+
+    args["t"] = t;
+    args["w"] = w;
+    return args;
+}
 
 class CallHandler{
   constructor(){
@@ -402,11 +439,6 @@ class TileSizes {
   clone(){
     return new TileSizes(this.size_x, this.size_y);
   }
-
-  static small = new TileSizes(tile_size_x, 100);
-  static medium = new TileSizes(tile_size_x, 400);
-  static large = new TileSizes(tile_size_x, 600);
-  static enormous = new TileSizes(tile_size_x, 800);
 
 }
 
