@@ -3,15 +3,17 @@ const canvas_width = 1000;
 const canvas_height = 1300;
 const tile_size_x = 200;
 
-let tile_speed = 400;
+let tile_speed = 700;
 let active_screen = 0;
 /* 
 0 - main menu of the game
 1 - main menu + animation of settings menu (open animation)
 2 - main_menu + settings menu on top of it
+3 - game
 */
 
 let CHandler;
+let game_score = 0;
 
 // Variables for gradient background
 const min_bg_brightness = 70;
@@ -28,6 +30,12 @@ let canvas;
 // Preloaded images
 let settings_img;
 let start_btn;
+let level_btns = [];
+let nyan_cat_gif;
+let sound_icon;
+let game_over_img;
+
+let logo_font;
 
 function preload_images(){
   settings_img = loadImage('assets/settings_tiles_icon.png');
@@ -35,6 +43,17 @@ function preload_images(){
 
   start_btn = loadImage('assets/button_start.png');
   start_btn.resize(400, 120);
+
+  quit_btn = loadImage('assets/quit_btn.png');
+
+  sound_icon = loadImage('assets/sound_icon.png')
+
+  level_btns = [loadImage('assets/btn_lvl_1.png'), loadImage('assets/btn_lvl_2.png'), loadImage('assets/btn_lvl_3.png')];
+  nyan_cat_gif = loadImage('assets/nyan_cat.gif');
+
+  logo_font = loadFont("assets/Fonts/zorque.otf");
+
+  game_over_img = loadImage('assets/game_over.jpeg');
 }
 
 function draw() {
@@ -60,7 +79,24 @@ function setup() {
     // Add tasks to draw basic UI
     CHandler.add_callable("draw_gradient_background", draw_gradient_background, -1, {});
     CHandler.add_callable("random_tiles_animation", draw_random_tiles, -1, {"tiles_manager": new TileManager(), "idle": 8})
-    CHandler.add_callable("draw_main_menu", draw_main_menu, -1, {"settings_angle": 0, "angle_rate": PI / 30, "do_rotation": false, "show_start_btn": true});
+    CHandler.add_callable("random_nyan_cat", ((args) => {
+      args["timer"] -= 1;
+      if (args["timer"] == 0){
+          // Start nyan cat animation
+          nyan_cat_gif.play();
+          CHandler.add_callable("nyan_cat_animation", ((animation_args) => {
+              let x = animation_args["x"];
+              let y = animation_args["y"];
+              image(nyan_cat_gif, x, y, 875, 360);
+              x += 10;
+              animation_args["x"] = x;
+              return animation_args;
+          }), 180, {"x": -300, "y": int(random(100, canvas_height - 100))});
+          args["timer"] = int(random(300, 800));
+      }
+      return args;
+    }), -1, {"timer": 10});
+    CHandler.add_callable("draw_main_menu", draw_main_menu, -1, {"settings_angle": 0, "angle_rate": PI / 30, "do_rotation": false, "show_start_btn": true, "show_level_buttons": false});
   }
   
   function draw_random_tiles(args){
@@ -69,13 +105,13 @@ function setup() {
     
     if (args["idle"] == 0){
         try{
-          corridor = random([0, 1, 2, 3]);
-          tile_size = random([new TileSizes(tile_size_x, 200), new TileSizes(tile_size_x, 400), new TileSizes(tile_size_x, 600), new TileSizes(tile_size_x, 800)]);
+            corridor = random([0, 1, 2, 3]);
+            tile_size = random([new TileSizes(tile_size_x, 200), new TileSizes(tile_size_x, 400), new TileSizes(tile_size_x, 600), new TileSizes(tile_size_x, 800)]);
 
-          manager.add_tile(corridor, tile_size);
-          args["idle"] = int(random(40, 100));
+            manager.add_tile(corridor, tile_size);
+            args["idle"] = int(random(40, 100));
         } catch(ex){
-          console.log(ex);
+            console.log(ex);
         }
     }
 
@@ -83,7 +119,72 @@ function setup() {
     return args;
   }
 
+  function draw_settings_window(args){
+    if (args["first"]){
+      args["first"] = false;
+      return args;
+    }
+    // Darken everything else
+    fill(0, 0, 0, 120);
+    rect(0, 0, canvas_width, canvas_height);
+
+    // Draw the window itself
+    fill("#0EB2B8");
+    stroke(2);
+    rect(canvas_width / 2 - 300, 300, 600, 460);
+
+    args["close_btn"].position(canvas_width / 2 - 100, 650);
+    return args;
+  }
+
+  function settings_window_animation(args){
+    t = args["t"] + 1;
+    a = min(args["alpha"] + 4, 120);
+
+    // Darken everything else
+    fill(0, 0, 0, a);
+    rect(0, 0, canvas_width, canvas_height);
+
+    // Draw options menu
+    let y_pos = 900 * (1 - exp(-t / 10)) - 600;
+    fill("#0EB2B8");
+    stroke(2);
+    rect(canvas_width / 2 - 300, y_pos, 600, 460);
+
+    // Create button
+    if (t == 1){
+        args["close_btn"] = createA("#", '<div class="liquid"></div><span>Save</span>')
+        args["close_btn"].position(100, 400);
+
+        // Start backwards animation
+        args["close_btn"].mouseClicked(() => {
+            if (active_screen != 2){
+              return;
+            }
+            // Add callable for animation
+        })
+    }
+    args["close_btn"].position(canvas_width / 2 - 100, 900 * (1 - exp(-t / 10)) - 250);
+
+    if (args["reps_left"] == 0){
+        CHandler.add_callable("draw_settings_window", draw_settings_window, -1, {"close_btn": args["close_btn"], "first": true});
+        CHandler.remove_callback("animation_settings_menu");
+        active_screen = 2;
+    }
+    
+    args["t"] = t;
+    args["alpha"] = a;
+    return args;
+  }
+
   function draw_main_menu(args){
+    // Draw the name of the game
+    fill("grey");
+    noStroke();
+    textFont(logo_font);
+    textSize(100);
+    text("Music Tiles", canvas_width / 2 - 300, 250)
+
     // Draw settings button!
 
     // Rotation
@@ -106,6 +207,10 @@ function setup() {
             return args;
         }
         // Function called when settings button is clicked
+        if (active_screen != 0){
+          return args;
+        }
+        
         active_screen = 1;
 
         // Allow rotation of settings button
@@ -125,6 +230,8 @@ function setup() {
             return args;
         }), 60, {"counter": 60});
 
+        // Run animation for settings menu
+        CHandler.add_callable("animation_settings_menu", settings_window_animation, 80, {"t": 0, "alpha": 0});
         return args;
     });
 
@@ -137,30 +244,90 @@ function setup() {
     }
     translate(60 - canvas_width, 60 - canvas_height);
 
+    // Draw return button
+    image(quit_btn, 50, canvas_height - 50, 80, 80);
+
+
     // Draw buttons
     if (args["show_start_btn"]){
 
         image(start_btn, canvas_width / 2, canvas_height / 2, 420, 124);
+
         CHandler.add_clickable_region("start_button", (() => {
           if (!(active_screen == 0)){
               return false
           }
           return abs(mouseX - canvas_width / 2) < 210 && abs(mouseY - canvas_height / 2) < 62;
         }), ((args_start_btn) => {
-              if (!args_start_btn["clickable"]){return args_start_btn; }
+              if (!args_start_btn["clickable"] || (active_screen == 1)){return args_start_btn; }
 
               // Button can only be pressed once - disable its rendering
-              // args["show_start_btn"] = false;
-              // args_start_btn["clickable"] = false;
+              args["show_start_btn"] = false;
+              args_start_btn["clickable"] = false;
 
               // Start animation
-              CHandler.add_callable("start_button_flies_away", start_btn_animation, 120, {"t": 0, "w": 0});
+
+              CHandler.add_callable("start_button_flies_away", start_btn_animation, 75, {"t": 0, "w": 0, "lvl_delay": 30});
 
               return args_start_btn;
         }), {"clickable": true});
     }
+    else if (args["show_level_buttons"]){
+        // Place level buttons
+        for (let i = 0; i < 3; i++){
+          image(level_btns[i], canvas_width / 2, canvas_height / 2 + 200 + (i - 1) * 200, 440, 124);
+        }
+        CHandler.add_clickable_region("level_one_start", (() => {
+          return (abs(mouseX - canvas_width / 2) <= 220 && abs(mouseY - canvas_height / 2) <= 220)
+        }), ((args) => {
+            // Switch to game mode
+            active_screen = 3;
+            CHandler.reset_callbacks();
+            
+            CHandler.add_callable("draw_gradient_background", draw_gradient_background, -1, {});
+            let manager = new TileManager(true)
+            manager.make_clickable();
+            CHandler.add_callable("draw_game_tiles", draw_game_tiles, -1, {"tiles_manager": manager, "idle": 1});
+            CHandler.add_callable("draw_game_UI", draw_game_UI, -1, {});
+            tile_speed = 1100;
+        }), {});
+    }
     
     return args;
+  }
+
+  function draw_game_UI(args){
+      fill("grey");
+      noStroke();
+      textFont(logo_font);
+      textSize(50);
+      text(game_score, canvas_width / 2 - 35, 70);
+      game_score += 0;
+
+      return args;
+  }
+
+  function draw_game_tiles(args){
+      args["idle"] -= 1;
+      manager = args["tiles_manager"];
+      
+      if (args["idle"] <= 0){
+          try{
+              corridor = random([0, 1, 2, 3]);
+              tile_size = random([new TileSizes(tile_size_x, 200), new TileSizes(tile_size_x, 400), new TileSizes(tile_size_x, 600), new TileSizes(tile_size_x, 800)]);
+
+              manager.add_tile(corridor, tile_size, true, (() => {
+                  game_score += 10;
+              }));
+              
+              args["idle"] = int(random(20, 45));
+          } catch(ex){
+              console.log(ex);
+          }
+      }
+
+      manager.move(deltaTime);
+      return args;
   }
 
 function start_btn_animation(args){
@@ -173,8 +340,24 @@ function start_btn_animation(args){
     image(start_btn, canvas_width / 2 + t, canvas_height / 2 - y_offset, 420, 124);
     rotate(-w);
 
+    // Place level buttons
+    if (t >= args["lvl_delay"]){
+      for (let i = 0; i < 3; i++){
+          image(level_btns[i], canvas_width / 2, (canvas_height / 2 + 200 + (i - 1) * 200) + canvas_height / 2 * exp(-(t - args["lvl_delay"])/ 8) / ((t - args["lvl_delay"]) / 6 + 1), 440, 124);
+      }
+    }
+
     args["t"] = t;
     args["w"] = w;
+    
+    // Enable drawing of level buttons
+    if (args["reps_left"] == 0){
+        args_main_menu = CHandler.get_internal_state("draw_main_menu");
+        args_main_menu["show_level_buttons"] = true;
+        args["show_start_btn"] = false;
+        CHandler.update_internal_state("draw_main_menu", args_main_menu);
+    }
+
     return args;
 }
 
@@ -253,6 +436,7 @@ class CallHandler{
   add_callable(name, callable, repetitions, args={}){
     args["call_handler"] = this;
     args["name"] = name;
+    args["reps_left"] = repetitions;
 
     append(this.callables, [callable, repetitions, name]);
     append(this.internal_states, args);
@@ -262,19 +446,23 @@ class CallHandler{
   execute(){
     let new_callables = [];
     let new_states = [];
-    for (let i = 0; i < this.callables.length; i++){
-        let call = this.callables[i][0];
-        let reps = this.callables[i][1];
-        reps -= (reps == -1? 0: 1);
+    let i = 0;
+    while (i < this.callables.length){
+      let call = this.callables[i][0];
+      let reps = this.callables[i][1];
+      reps -= (reps == -1? 0: 1);
 
-        let previous_state = this.internal_states[i];
-        
-        let state = call(previous_state);
-        if (reps > 0 || reps == -1){
-          append(new_callables, [call, reps, this.callables[i][2]]);
-          append(new_states, state);
-        }
+      let previous_state = this.internal_states[i];
+      previous_state["reps_left"] = reps;
+      
+      let state = call(previous_state);
+      if (reps > 0 || reps == -1){
+        append(new_callables, [call, reps, this.callables[i][2]]);
+        append(new_states, state);
+      }
+      i++;
     }
+
     this.callables = new_callables;
     this.internal_states = new_states;
   }
@@ -294,8 +482,8 @@ class CallHandler{
 
   // Function to remove callables by name
   remove_callback(name){
-    new_callables = [];
-    new_internal_states = [];
+    let new_callables = [];
+    let new_internal_states = [];
     for (let i = 0; i < this.callables.length; i++){
       // Remove callables with a given name
       if (name == this.callables[i][2])
@@ -310,7 +498,7 @@ class CallHandler{
 
 function draw_gradient_background(args){
   // Check whether the mode is correct
-  if (!(active_screen == 0 || active_screen == 1 || active_screen == 2))
+  if (!(active_screen == 0 || active_screen == 1 || active_screen == 2 || active_screen == 3))
     return;
 
   // Switch to HSB
@@ -372,21 +560,77 @@ function draw_gradient_background(args){
 }
 
 class TileManager{
-  constructor(){
+  constructor(clickable=false){
       this.tiles = []
+      this.tile_callables = {};
+      this.clickable = clickable;
   }
 
-  add_tile(corridor, size){
-    try{
-        append(this.tiles, new Tile(size.size_x, size.size_y, tile_speed, corridor));
-    } catch(ex){
-      console.log(ex);
+  make_clickable(){
+    if (this.clickable){
+        CHandler.add_callable("tile_manager_click", this.tiles_click, -1, {"manager": this});
     }
-    
+  }
+
+  add_tile(corridor, size, clickable=false, click_callback=null){
+    try{
+        let tile_id = int(random(10, 1000000));
+        append(this.tiles, new Tile(size.size_x, size.size_y, tile_speed, corridor, tile_id, clickable));
+        if (clickable && this.clickable){
+          this.tile_callables[tile_id] = click_callback;
+        }
+    } catch(ex){
+        console.log(ex);
+    }
+  }
+
+  tiles_click(args){
+    let manager = args["manager"];
+    let tiles = manager.tiles;
+      for (let i = 0; i < tiles.length; i++){
+
+        if (!tiles[i].is_clickable()){
+            continue;
+        }
+        if (abs(mouseX - tiles[i].x) <= tiles[i].size_x && abs(mouseY - tiles[i].y) <= tiles[i].size_y){
+            manager.tile_callables[tiles[i].get_id()]({"manager": manager, "id": tiles[i].get_id()});
+            manager.delete_tile(tiles[i].get_id());
+        }
+      }
+      
+      return args;
+  }
+
+  delete_tile(id){
+      let new_tiles = [];
+      for(let i = 0; i < this.tiles.length; i++){
+          if (this.tiles[i].get_id() != id){
+              append(new_tiles, this.tiles[i]);
+          }
+      }
+      this.tiles = new_tiles;
   }
 
   move(dt){
-      let tmp_tiles = []
+      if (active_screen == 3){
+          let a = 0;
+      }
+      let tmp_tiles = [];
+
+      // Check for game over
+      for (let i = 0; i < this.tiles.length; i++){
+        if (this.clickable && this.tiles[i].y + this.tiles[i].size_y >= canvas_height){
+          CHandler.reset_callbacks();
+          this.tiles = [];
+          this.tile_callables = {};
+          background("black");
+          fill("grey");
+          noStroke();
+          textFont(logo_font);
+          textSize(130);
+          text("GAME OVER!", canvas_width / 2 - 400, 500);
+        }
+      }
       for(let i = 0 ; i < this.tiles.length ;i++){
         this.tiles[i].move(dt)
         if (!this.tiles[i].is_out()){
@@ -407,12 +651,22 @@ class TileManager{
 }
 
 class Tile {
-  constructor(size_x=tile_size_x, size_y, speed_y=tile_speed, corridor){
+  constructor(size_x=tile_size_x, size_y, speed_y=tile_speed, corridor, tile_id, clickable=false){
     this.x = 100 + corridor * 200 + (corridor - 2);
     this.y = -size_y;
     this.v_y = speed_y;
     this.size_x = size_x;
     this.size_y = size_y;
+    this.tile_id = tile_id;
+    this.clickable = clickable;
+  }
+
+  is_clickable(){
+    return this.clickable;
+  }
+
+  get_id(){
+    return this.tile_id;
   }
 
   is_out(){
