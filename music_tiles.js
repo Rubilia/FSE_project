@@ -66,6 +66,29 @@ function mouseClicked() {
     CHandler.execute_click();
 }
 
+function main_menu_handler(){
+  CHandler.add_callable("draw_gradient_background", draw_gradient_background, -1, {});
+  CHandler.add_callable("random_tiles_animation", draw_random_tiles, -1, {"tiles_manager": new TileManager(), "idle": 8})
+  CHandler.add_callable("random_nyan_cat", ((args) => {
+    args["timer"] -= 1;
+    if (args["timer"] == 0){
+        // Start nyan cat animation
+        nyan_cat_gif.play();
+        CHandler.add_callable("nyan_cat_animation", ((animation_args) => {
+            let x = animation_args["x"];
+            let y = animation_args["y"];
+            image(nyan_cat_gif, x, y, 875, 360);
+            x += 10;
+            animation_args["x"] = x;
+            return animation_args;
+        }), 180, {"x": -300, "y": int(random(100, canvas_height - 100))});
+        args["timer"] = int(random(300, 800));
+    }
+    return args;
+  }), -1, {"timer": 10});
+  CHandler.add_callable("draw_main_menu", draw_main_menu, -1, {"settings_angle": 0, "angle_rate": PI / 30, "do_rotation": false, "show_start_btn": true, "show_level_buttons": false});
+}
+
 function setup() {
     // Preload images
     preload_images();
@@ -77,26 +100,7 @@ function setup() {
     // canvas.mouseClicked(addTile);
 
     // Add tasks to draw basic UI
-    CHandler.add_callable("draw_gradient_background", draw_gradient_background, -1, {});
-    CHandler.add_callable("random_tiles_animation", draw_random_tiles, -1, {"tiles_manager": new TileManager(), "idle": 8})
-    CHandler.add_callable("random_nyan_cat", ((args) => {
-      args["timer"] -= 1;
-      if (args["timer"] == 0){
-          // Start nyan cat animation
-          nyan_cat_gif.play();
-          CHandler.add_callable("nyan_cat_animation", ((animation_args) => {
-              let x = animation_args["x"];
-              let y = animation_args["y"];
-              image(nyan_cat_gif, x, y, 875, 360);
-              x += 10;
-              animation_args["x"] = x;
-              return animation_args;
-          }), 180, {"x": -300, "y": int(random(100, canvas_height - 100))});
-          args["timer"] = int(random(300, 800));
-      }
-      return args;
-    }), -1, {"timer": 10});
-    CHandler.add_callable("draw_main_menu", draw_main_menu, -1, {"settings_angle": 0, "angle_rate": PI / 30, "do_rotation": false, "show_start_btn": true, "show_level_buttons": false});
+    main_menu_handler();
   }
   
   function draw_random_tiles(args){
@@ -138,8 +142,15 @@ function setup() {
   }
 
   function settings_window_animation(args){
-    t = args["t"] + 1;
-    a = min(args["alpha"] + 4, 120);
+    if (args["forward"]){
+        t = args["t"] + 1;
+        a = min(args["alpha"] + 4, 120);
+    }
+    else{
+        t = args["t"] - 1;
+        a = max(args["alpha"] - 4, 0);
+        args["close_btn"].mouseClicked((() => {}));
+  }
 
     // Darken everything else
     fill(0, 0, 0, a);
@@ -152,7 +163,7 @@ function setup() {
     rect(canvas_width / 2 - 300, y_pos, 600, 460);
 
     // Create button
-    if (t == 1){
+    if (t == 1 && args["forward"]){
         args["close_btn"] = createA("#", '<div class="liquid"></div><span>Save</span>')
         args["close_btn"].position(100, 400);
 
@@ -161,15 +172,26 @@ function setup() {
             if (active_screen != 2){
               return;
             }
-            // Add callable for animation
-        })
-    }
-    args["close_btn"].position(canvas_width / 2 - 100, 900 * (1 - exp(-t / 10)) - 250);
 
-    if (args["reps_left"] == 0){
+            // Add callable for animation
+            CHandler.remove_callback("draw_settings_window");
+            CHandler.add_callable("animation_settings_menu", settings_window_animation, 80, {"t": 80, "alpha": 120, "forward": false, "close_btn": args["close_btn"]});
+          
+        });
+    }
+    args["close_btn"].position(canvas_width / 2 - 100, y_pos + 350);
+
+    if (args["reps_left"] == 0 && args["forward"]){
         CHandler.add_callable("draw_settings_window", draw_settings_window, -1, {"close_btn": args["close_btn"], "first": true});
         CHandler.remove_callback("animation_settings_menu");
         active_screen = 2;
+    }
+    else if (args["reps_left"] == 0 && !args["forward"]){
+        active_screen = 0;
+        CHandler.remove_callback("animation_settings_menu");
+        args["close_btn"].hide();
+        // CHandler.reset_callbacks();
+        // main_menu_handler();
     }
     
     args["t"] = t;
@@ -193,7 +215,7 @@ function setup() {
 
     
     if (args["do_rotation"]){
-        angle = args["settings_angle"] + args["angle_rate"];
+        angle = args["settings_angle"] + args["angle_rate"];  
         rotate(angle);
     }
 
@@ -231,7 +253,7 @@ function setup() {
         }), 60, {"counter": 60});
 
         // Run animation for settings menu
-        CHandler.add_callable("animation_settings_menu", settings_window_animation, 80, {"t": 0, "alpha": 0});
+        CHandler.add_callable("animation_settings_menu", settings_window_animation, 80, {"t": 0, "alpha": 0, "forward": true});
         return args;
     });
 
@@ -368,14 +390,14 @@ class CallHandler{
 
     this.click_callables = [];
     this.click_internal_states = [];
+
+    this.pending_callables = [];
+    this.pending_states = [];
+    this.clear_after_iteration = false;
   }
 
   reset_callbacks(){
-    this.callables = [];
-    this.internal_states = [];
-
-    this.click_callables = [];
-    this.click_internal_states = [];
+    this.clear_after_iteration = true;
   }
 
   does_callback_exist(name){
@@ -438,12 +460,20 @@ class CallHandler{
     args["name"] = name;
     args["reps_left"] = repetitions;
 
-    append(this.callables, [callable, repetitions, name]);
-    append(this.internal_states, args);
+    append(this.pending_callables, [callable, repetitions, name]);
+    append(this.pending_states, args);
   }
 
   // Executes callables from list, updates internal states and number of reps left
   execute(){
+    // Update list of callables
+    for(let i = 0; i < this.pending_callables.length; i++){
+        append(this.callables, this.pending_callables[i]);
+        append(this.internal_states, this.pending_states[i]);
+    }
+    this.pending_callables = [];
+    this.pending_states = [];
+
     let new_callables = [];
     let new_states = [];
     let i = 0;
@@ -462,9 +492,23 @@ class CallHandler{
       }
       i++;
     }
+    if (this.clear_after_iteration){
+      this.clear_after_iteration = false;
+      this.callables = [];
+      this.internal_states = []
+    }
+    else{
+      this.callables = new_callables;
+      this.internal_states = new_states;
+    }
 
-    this.callables = new_callables;
-    this.internal_states = new_states;
+    // Update list of callables
+    for(let i = 0; i < this.pending_callables.length; i++){
+        append(this.callables, this.pending_callables[i]);
+        append(this.internal_states, this.pending_states[i]);
+    }
+    this.pending_callables = [];
+    this.pending_states = [];
   }
 
   // Execute a given callbacks if user clickes inside a given region
@@ -493,6 +537,8 @@ class CallHandler{
       append(new_callables, this.callables[i]);
       append(new_internal_states, this.internal_states[i]);
     }
+    this.callables = new_callables;
+    this.internal_states = new_internal_states;
   }
 }
 
