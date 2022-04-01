@@ -10,6 +10,7 @@ let active_screen = 0;
 1 - main menu + animation of settings menu (open animation)
 2 - main_menu + settings menu on top of it
 3 - game
+4 - game over screen (with and without animation)
 */
 
 let CHandler;
@@ -34,7 +35,7 @@ let level_btns = [];
 let nyan_cat_gif;
 let sound_icon;
 let game_over_img;
-
+let fire_gif;
 let logo_font;
 
 function preload_images(){
@@ -281,7 +282,7 @@ function setup() {
           }
           return abs(mouseX - canvas_width / 2) < 210 && abs(mouseY - canvas_height / 2) < 62;
         }), ((args_start_btn) => {
-              if (!args_start_btn["clickable"] || (active_screen == 1)){return args_start_btn; }
+              if (!args_start_btn["clickable"] || (active_screen == 1)) {return args_start_btn; }
 
               // Button can only be pressed once - disable its rendering
               args["show_start_btn"] = false;
@@ -300,7 +301,7 @@ function setup() {
           image(level_btns[i], canvas_width / 2, canvas_height / 2 + 200 + (i - 1) * 200, 440, 124);
         }
         CHandler.add_clickable_region("level_one_start", (() => {
-          return (abs(mouseX - canvas_width / 2) <= 220 && abs(mouseY - canvas_height / 2) <= 220)
+          return (active_screen == 0 && abs(mouseX - canvas_width / 2) <= 220 && abs(mouseY - canvas_height / 2) <= 220)
         }), ((args) => {
             // Switch to game mode
             active_screen = 3;
@@ -376,7 +377,7 @@ function start_btn_animation(args){
     if (args["reps_left"] == 0){
         args_main_menu = CHandler.get_internal_state("draw_main_menu");
         args_main_menu["show_level_buttons"] = true;
-        args["show_start_btn"] = false;
+        args_main_menu["show_start_btn"] = false;
         CHandler.update_internal_state("draw_main_menu", args_main_menu);
     }
 
@@ -466,14 +467,6 @@ class CallHandler{
 
   // Executes callables from list, updates internal states and number of reps left
   execute(){
-    // Update list of callables
-    for(let i = 0; i < this.pending_callables.length; i++){
-        append(this.callables, this.pending_callables[i]);
-        append(this.internal_states, this.pending_states[i]);
-    }
-    this.pending_callables = [];
-    this.pending_states = [];
-
     let new_callables = [];
     let new_states = [];
     let i = 0;
@@ -495,7 +488,10 @@ class CallHandler{
     if (this.clear_after_iteration){
       this.clear_after_iteration = false;
       this.callables = [];
-      this.internal_states = []
+      this.internal_states = [];
+
+      this.click_callables = [];
+      this.click_internal_states = []
     }
     else{
       this.callables = new_callables;
@@ -605,6 +601,52 @@ function draw_gradient_background(args){
   return args;
 }
 
+function game_over_screen(args){
+  if (args["first"]){
+      fire_gif = loadImage('assets/fire.gif');
+      fire_gif.play();
+      args["first"] = false;
+  }
+    // Draw main screen
+    // textAlign(CENTER);
+    background("black");
+    fill("grey");
+    noStroke();
+    textFont(logo_font);
+    textSize(130);
+    text("GAME OVER!", canvas_width / 2 - 400, 300);
+    textSize(70);
+    text("Score: " + game_score, canvas_width / 2 - 390, 380);
+    // Draw animation if applicable
+    t = args["t"]
+
+    // Fire animation
+    image(fire_gif, canvas_width / 2, canvas_height + 319 * exp(-t / 4) - 562 / 2, canvas_width, 562)
+
+    if (t == 0){
+        let a = createButton('<span>ℝ𝕖𝕥𝕦𝕣𝕟</span>');
+        a.style("vertical-align:middle")
+        a.class("game_over_btn")
+        a.position(canvas_width / 2 - 115, canvas_height - 360);
+        a.mouseClicked(() => {
+            a.hide();
+            CHandler.reset_callbacks();
+            main_menu_handler();
+            active_screen = 0;
+            game_score = 0;
+        });
+
+        args["ret_btn"] = createButton('<span>Return</span>');
+    }
+    else{
+
+    }
+
+    args["t"] = min(args["t"] + 1, 60);
+
+    return args;
+}
+
 class TileManager{
   constructor(clickable=false){
       this.tiles = []
@@ -669,12 +711,10 @@ class TileManager{
           CHandler.reset_callbacks();
           this.tiles = [];
           this.tile_callables = {};
-          background("black");
-          fill("grey");
-          noStroke();
-          textFont(logo_font);
-          textSize(130);
-          text("GAME OVER!", canvas_width / 2 - 400, 500);
+
+          // Draw game over screen
+          CHandler.add_callable("game_over_screen", game_over_screen, -1, {"t": -10, "first": true});
+          return;
         }
       }
       for(let i = 0 ; i < this.tiles.length ;i++){
@@ -742,4 +782,4 @@ class TileSizes {
 
 }
 
-// Utils
+// Utilsv
