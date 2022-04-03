@@ -127,6 +127,14 @@ Game over button
   }
 }
 
+/*
+Settings sound button
+*/
+.sound_btn{
+  height: 100px;
+  width: 100px;
+ }
+
 html {
   margin: 0;
   padding: 0;

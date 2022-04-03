@@ -1,8 +1,15 @@
 let bg;
 let preview_src = 'assets/tiles_preview.jpg';
 
+let canvas_width = 1000;
+let canvas_height = 1300;
+let game = 0;
+let is_in_game = false;
+let run_game = false;
+let main_menu_start_btn = null;
+
 function setup() {
-    createCanvas(1000, 1300);
+    createCanvas(canvas_width, canvas_height);
     bg = loadImage('assets/background.jpg');
   }
   
@@ -12,12 +19,18 @@ function setup() {
   }
 
   function draw_main_menu(){
-    fill('white')
-    // Draw settings btn
-    settings = createImg('assets/settings_tiles_icon.png');
-    settings.position(900, 1200);
-    settings.size(90, 90);
-    settings.mousePressed(draw_settings_menu);
+    fill('white');
+
+    if (run_game){
+        if (game == 0){
+          if (!is_in_game){
+              setup_tiles();
+              is_in_game = true;
+          }
+          draw_tiles();
+        }
+    }
+
 
     // Draw game btns
     music_tiles_btn = createImg('assets/music tiles btn.png');
@@ -41,10 +54,6 @@ function setup() {
     shapes_btn.size(250, AUTO);
     shapes_btn.mousePressed(shapes_startup);
 
-    // Create score menu
-    fill('white')
-    draw_scores();
-
     // Draw preview
     textSize(50);
     fill('white')
@@ -53,41 +62,44 @@ function setup() {
     preview = createImg(preview_src)
     preview.position(460, 300);
     preview.size(460, 800)
-  }
 
-  function draw_scores(){
-      // Load score - to be added
-      textSize(40);
-      
-      text('High scores', 110, 160)
-      fill("grey")
-      rect(80, 200, 280, 290)
-      textSize(30)
-      fill('white')
-      text('Try to play a game!', 90, 240)
-      
-  }
+    // Draw start_btn
+    if (main_menu_start_btn == null){
+        main_menu_start_btn = createButton('<span>🇸​​​​​🇹​​​​​🇦​​​​​🇷​​​​​🇹​​​​​</span>');
+        main_menu_start_btn.style("vertical-align:middle")
+        main_menu_start_btn.class("game_over_btn")
+        main_menu_start_btn.position(canvas_width / 2 + 30, canvas_height - 150);
+        main_menu_start_btn.mouseClicked(() => {
+          main_menu_start_btn.hide();
+            run_game = true;
+            main_menu_start_btn = null;
+        });
+    }
 
-  function draw_settings_menu(){
-    // Draws settings   
   }
-
 
   // Run games
 
   function music_tiles_startup(){
     preview_src = 'assets/tiles_preview.jpg';
+    game = 0;
   }
 
   
   function drive_dodge_startup(){
-    preview_src = 'assets/drive_dodge_preview.jpg'
+    preview_src = 'assets/not_implemented.webp'
+    game = 1;
   }
 
   function object_dragging_startup(){
-    preview_src = 'assets/obj_dragging_preview.jpg';
+    preview_src = 'assets/not_implemented.webp';
+    game = 2;
   }
 
   function shapes_startup(){
-    preview_src = 'assets/shapes_preview.jpg';
+    preview_src = 'assets/not_implemented.webp';
+    game - 3;
   }
+
+
+  
