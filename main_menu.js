@@ -15,10 +15,10 @@ function setup() {
   
   function draw() {
     background(bg);
-    draw_main_menu();
+    draw_main_menu_interface();
   }
 
-  function draw_main_menu(){
+  function draw_main_menu_interface(){
     fill('white');
 
     if (run_game){

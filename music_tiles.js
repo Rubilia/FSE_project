@@ -1,3 +1,13 @@
+let bg;
+let preview_src = 'assets/tiles_preview.jpg';
+let game = 0;
+let music_tiles_btn_start = null;
+let drive_dodge_btn_start = null;
+let object_dragging_btn_start = null;
+let shapes_btn_start = null;
+let main_menu_start_btn = null;
+let preview_imgs;
+
 // Hyperparameters
 const canvas_width = 1000;
 const canvas_height = 1300;
@@ -42,39 +52,134 @@ let logo_font;
 let fft;
 let src_length;
 let lvl_music_1, lvl_music_2, lvl_music_3;
+let fail_music;
+let win_music;
 
 let onsetLow, onsetLowMid, onsetMid;
 
 let is_music = true;
 
-
-function preload_images(){
-  settings_img = loadImage('assets/settings_tiles_icon.png');
-  settings_img.resize(80, 80);
-
-  start_btn = loadImage('assets/button_start.png');
-  start_btn.resize(400, 120);
-
-  quit_btn = loadImage('assets/quit_btn.png');
-
-  sound_icon = loadImage('assets/sound_icon.png')
-
-  level_btns = [loadImage('assets/btn_lvl_1.png'), loadImage('assets/btn_lvl_2.png'), loadImage('assets/btn_lvl_3.png')];
-  nyan_cat_gif = loadImage('assets/nyan_cat.gif');
-
-  logo_font = loadFont("assets/Fonts/zorque.otf");
-
-  game_over_img = loadImage('assets/game_over.jpeg');
-
-  // Preload music
-  lvl_music_1 = loadSound('assets/music/lvl1.mp3');
-  lvl_music_2 = loadSound('assets/music/lvl2.mp3');
-  lvl_music_3 = loadSound('assets/music/lvl3.mp3');
-}
-
-function draw_tiles() {
+function draw() {
     // Execute all pending callbacks
     CHandler.execute();
+}
+
+function setup() {
+    // Preload images
+    preload_images();
+
+    // Initialize variables
+    CHandler = new CallHandler();
+    CHandler.add_callable("main_menu_menu_draw", main_menu_menu_draw, -1, {});
+
+    canvas = createCanvas(canvas_width, canvas_height);
+    canvas.mouseClicked(mouseClicked);
+
+    // Add tasks to draw basic UI
+    // main_menu_handler();
+}
+
+function main_menu_menu_draw(args){
+    image(bg, 0, 0, canvas_width, canvas_height);
+
+    // Draw game buttons
+    image(music_tiles_btn_start, 100, 500, 250, 250);
+    CHandler.add_clickable_region("start_music_tiles", (() => {
+        return (abs(mouseX - 225) <= 125 && abs(mouseY - 625) <= 60);
+    }), (() => {    
+        preview_src = 'assets/tiles_preview.jpg';
+        game = 0;
+    }), {});
+
+
+    image(drive_dodge_btn_start, 100, 640, 250, 250);
+    CHandler.add_clickable_region("start_drive_dodge", (() => {
+        return (abs(mouseX - 225) <= 125 && abs(mouseY - 765) <= 60);
+    }), (() => {    
+        preview_src = 'assets/not_implemented.webp';
+        game = 1;
+    }), {});
+
+
+    image(object_dragging_btn_start, 100, 780, 250, 250);
+    CHandler.add_clickable_region("start_object_dragging", (() => {
+        return (abs(mouseX - 225) <= 125 && abs(mouseY - 905) <= 60);
+    }), (() => {    
+        preview_src = 'assets/not_implemented.webp';
+        game = 2;
+    }), {});
+
+
+
+    image(shapes_btn_start, 100, 920, 250, 250);
+    CHandler.add_clickable_region("start_shapes", (() => {
+        return (abs(mouseX - 225) <= 125 && abs(mouseY - 1045) <= 60);
+    }), (() => {    
+        preview_src = 'assets/not_implemented.webp';
+        game = 3;
+    }), {});
+
+    // Draw preview
+    textSize(50);
+    fill('white');
+    text('Preview', 580, 260);
+    
+    image(preview_imgs[preview_src], 460, 300, 460, 800);
+    
+    // Draw start_btn
+    if (main_menu_start_btn == null){
+        main_menu_start_btn = createButton('<span>🇸​​​​​🇹​​​​​🇦​​​​​🇷​​​​​🇹​​​​​</span>');
+        main_menu_start_btn.style("vertical-align:middle")
+        main_menu_start_btn.class("game_over_btn")
+        main_menu_start_btn.position(canvas_width / 2 + 30, canvas_height - 150);
+        main_menu_start_btn.mouseClicked(() => {
+            if (game != 0){
+              return;
+            }
+            CHandler.reset_callbacks();
+            main_menu_handler();
+            main_menu_start_btn.hide();
+            main_menu_start_btn = null;
+        });
+    }
+    
+    return args;
+}
+
+function preload_images(){
+    settings_img = loadImage('assets/settings_tiles_icon.png');
+    settings_img.resize(80, 80);
+
+    start_btn = loadImage('assets/button_start.png');
+    start_btn.resize(400, 120);
+
+    quit_btn = loadImage('assets/quit_btn.png');
+
+    sound_icon = loadImage('assets/sound_icon.png')
+
+    level_btns = [loadImage('assets/btn_lvl_1.png'), loadImage('assets/btn_lvl_2.png'), loadImage('assets/btn_lvl_3.png')];
+    nyan_cat_gif = loadImage('assets/nyan_cat.gif');
+
+    logo_font = loadFont("assets/Fonts/zorque.otf");
+
+    game_over_img = loadImage('assets/game_over.jpeg');
+
+    // Preload music
+    lvl_music_1 = loadSound('assets/music/lvl1.mp3');
+    lvl_music_2 = loadSound('assets/music/lvl2.mp3');
+    lvl_music_3 = loadSound('assets/music/lvl3.mp3');
+
+    fail_music = loadSound('assets/music/fail.wav');
+    win_music = loadSound('assets/music/win.wav');
+
+    bg = loadImage('assets/background.jpg');
+
+    music_tiles_btn_start = loadImage('assets/music tiles btn.png');
+    drive_dodge_btn_start = loadImage('assets/drive and dodge.png');
+    object_dragging_btn_start = loadImage('assets/object dragging.png');
+    shapes_btn_start = loadImage('assets/shape.png');
+
+    preview_imgs = {'assets/tiles_preview.jpg': loadImage('assets/tiles_preview.jpg'), 'assets/not_implemented.webp': loadImage('assets/not_implemented.webp')};
 }
 
 // Handles all mouse clicks through CallHandler
@@ -104,21 +209,7 @@ function main_menu_handler(){
   }), -1, {"timer": 10});
   CHandler.add_callable("draw_main_menu", draw_main_menu, -1, {"settings_angle": 0, "angle_rate": PI / 30, "do_rotation": false, "show_start_btn": true, "show_level_buttons": false});
 }
-
-function setup_tiles() {
-    // Preload images
-    preload_images();
-
-    // Initialize variables
-    CHandler = new CallHandler();
-
-    canvas = createCanvas(canvas_width, canvas_height);
-    canvas.mouseClicked(mouseClicked);
-
-    // Add tasks to draw basic UI
-    main_menu_handler();
-  }
-  
+ 
   function draw_random_tiles(args){
     args["idle"] -= 1;
     manager = args["tiles_manager"];
@@ -547,6 +638,7 @@ function game_won_screen(args){
   lvl_music_3.stop();
 
   if (args["first"]){
+      win_music.play();
       fireworks_gif = loadImage('assets/fireworks.gif');
       fireworks_gif.play();
       args["first"] = false;
@@ -772,6 +864,10 @@ class CallHandler{
 }
 
 function draw_gradient_background(args){
+  if (main_menu_start_btn != null){
+      main_menu_start_btn.hide();
+      main_menu_start_btn = null;
+  }
   // Check whether the mode is correct
   if (!(active_screen == 0 || active_screen == 1 || active_screen == 2 || active_screen == 3))
     return;
@@ -840,6 +936,7 @@ function game_over_screen(args){
   lvl_music_3.stop();
 
   if (args["first"]){
+      fail_music.play();
       fire_gif = loadImage('assets/fire.gif');
       fire_gif.play();
       args["first"] = false;
