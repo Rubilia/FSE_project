@@ -47,6 +47,7 @@ let sound_icon;
 let game_over_img;
 let fire_gif;
 let logo_font;
+let quit_btn;
 
 // Music variables
 let fft;

@@ -4,6 +4,7 @@ const canvas_height = 1300;
 
 let shapes_font;
 let shapes_score = 0;
+let quit_btn;
 
 function setup() {
     preload_resources_shapes();
@@ -15,7 +16,8 @@ function setup() {
 
 
 function preload_resources_shapes(){
-    shapes_font = loadFont('assets/pdark.ttf');
+    shapes_font = loadFont('assets/Fonts/pdark.ttf');
+    quit_btn = loadImage('assets/quit_btn.png');
 }
 
 function draw() {
@@ -30,9 +32,6 @@ function mouseClicked() {
 
 function shapes_game_screen(args){
     clear();
-    textFont(shapes_font, 50);
-    fill(color('#aaa9ad'));
-    text('Score ' + shapes_score, canvas_width / 2 - 400, 100);
     if (args["first"]){
         args["first"] = false;
 
@@ -63,7 +62,19 @@ function shapes_game_screen(args){
         args["first"] = true;
         shapes_score += 10;
     }
+    textFont(shapes_font, 50);
+    fill(color('#aaa9ad'));
+    text('Score ' + shapes_score, canvas_width / 2 - 400, 100);
 
+    image(quit_btn, 20, canvas_height - 100, 80, 80);
+    CHandler.add_clickable_region("quit_btn", ((args) => {
+        return (abs(mouseX - 60) <= 40 && abs(mouseY - canvas_height + 60) <= 40);
+    }), ((args) => {
+        CHandler.reset_callbacks();
+        CHandler.add_callable('main_menu_shapes', draw_shapes_menu, -1, {"first":true})
+        clear();
+        return args;
+    }), {});
     return args;
 }
 
@@ -72,6 +83,7 @@ function draw_shapes_menu(args){
     fill(color('#aaa9ad'));
     text('SHAPES!', canvas_width / 2 - 400, 300);
     if (args["first"]){
+        clear();
         args["first"] = false;
         let btns = {};
         btns["start_btn"] = createButton('Start');
@@ -87,7 +99,6 @@ function draw_shapes_menu(args){
         })
         args["buttons"] = btns;
     }
-
     return args;
 }
 
@@ -241,7 +252,7 @@ class CallHandler{
   
       // If a callable has a different name - ignore it
       append(new_click_callables, this.click_callables[i]);
-      append(new_click_internal_states, this.click_callables[i]);
+      append(new_click_internal_states, this.click_internal_states[i]);
     }
 
     this.click_callables = new_click_callables;
