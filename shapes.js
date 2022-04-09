@@ -30,14 +30,40 @@ function mouseClicked() {
 
 function shapes_game_screen(args){
     clear();
+    textFont(shapes_font, 50);
+    fill(color('#aaa9ad'));
+    text('Score ' + shapes_score, canvas_width / 2 - 400, 100);
     if (args["first"]){
         args["first"] = false;
-        args["shape"] = new Polygon(7, canvas_width / 2, canvas_width / 2, 100, PI / 12, "rgba(122, 250, 160, 0.8)", "rgba(4, 151, 48, 0.8)");
+
+        let n = int(random(3, 7));
+        let r = int(random(150, 350));
+
+        args["shape"] = new Polygon(n, int(random(50, canvas_width - 50)), int(random(50, canvas_height / 2)), r, random(-PI/2, PI/2), "rgba(122, 250, 160, 1)", "rgba(4, 151, 48, 1)");
+        args["target_shape"] = new Polygon(n, int(random(50, canvas_width - 50)), canvas_height / 2 + int(random(0, canvas_height / 3 - 50)), r, random(-PI/2, PI/2), "rgba(122, 250, 160, 0.2)", "rgba(4, 151, 48, 0.2)");
+        CHandler.add_clickable_region("shape_click", args["shape"].is_inside_polygon, args["shape"].onClick, {"polygon" : args["shape"]});
     }
     
+    if (args["shape"].is_active){
+        args["shape"].move(mouseX, mouseY);
+        let dw = 0;
+        if (keyIsDown(LEFT_ARROW)) {
+            dw = -0.01;
+        }
+        else if (keyIsDown(RIGHT_ARROW)){
+            dw = 0.01;
+        }
+        polygon = CHandler.get_internal_state("draw_game_screen_shapes")["shape"];
+        polygon.rotate(dw);
+    }
     args["shape"].draw();
-    args["shape"].rotate(deltaTime / 160 * PI / 20);
-    let a = CHandler.callables;
+    args["target_shape"].draw();
+
+    if (args["shape"].is_close(args["target_shape"])){
+        args["first"] = true;
+        shapes_score += 10;
+    }
+
     return args;
 }
 
@@ -55,7 +81,7 @@ function draw_shapes_menu(args){
             btns["start_btn"].mouseClicked(() => {});
             setTimeout(() => {
                 btns["start_btn"].hide();
-                CHandler.remove_callback('main_menu_shapes');
+                CHandler.reset_callbacks();
                 CHandler.add_callable("draw_game_screen_shapes", shapes_game_screen, -1, {"first": true});
             }, 800);
         })
@@ -76,12 +102,41 @@ class Polygon{
         this.border_color = border_color;
         this.coordinates = [];
         this.refresh_coordinates();
+        this.is_active = false;
+        this.thresh = 10;
+    }
+
+    is_close(p){
+        for(let i = 0; i < this.n; i++){
+            let b = false;
+            for(let j = 0; j < p.n; j++){
+                b |= (dist(this.coordinates[i][0], this.coordinates[i][1], p.coordinates[j][0], p.coordinates[j][1]) <= this.thresh)
+            }
+            if (!b){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    is_inside_polygon(args){
+        let s = 0;
+        for(let i = 0; i < args["polygon"].n - 1; i++){
+            s += abs((args["polygon"].coordinates[i][0] - mouseX) * (args["polygon"].coordinates[i + 1][1] - mouseY) - (args["polygon"].coordinates[i + 1][0] - mouseX) * (args["polygon"].coordinates[i][1] - mouseY));
+        }
+        
+        args["polygon"].is_active = (s <= args["polygon"].n * args["polygon"].r * args["polygon"].r * sin(2 * PI / args["polygon"].n));
+        return args["polygon"].is_active;
+    }
+
+    onClick(args){
+        args["polygon"].is_active = true;
     }
 
     refresh_coordinates(){
         let points = [];
-        let x, y;
         for(let i = 0; i < this.n; i++){
+            let x, y;
             x = this.c_x + this.r * cos(this.w + 2 * PI * i / this.n);
             y = this.c_y + this.r * sin(this.w + 2 * PI * i / this.n);
             append(points, [x, y]);
@@ -90,6 +145,7 @@ class Polygon{
     }
 
     draw(){
+        // Draw  a Polygon
         fill(this.fill_color);
         stroke(this.border_color);
         strokeWeight(4);
@@ -98,11 +154,19 @@ class Polygon{
             vertex(this.coordinates[i][0], this.coordinates[i][1]);
         }
         endShape(CLOSE);
+
+        // Draw verticies
+        noStroke();
+        fill(color("rgba(0, 0, 0, 1)"));
+        for(let i = 0; i < this.n; i++){
+          circle(this.coordinates[i][0], this.coordinates[i][1], min(this.r / 10, 12));
+          // vertex(this.coordinates[i][0], this.coordinates[i][1]);
+        }
     }
 
     move(x_c, y_c){
-      this.x_c = x_c;
-      this.y_c = y_c;
+      this.c_x = x_c;
+      this.c_y = y_c;
       this.refresh_coordinates();
     }
 
@@ -239,7 +303,7 @@ class CallHandler{
   execute_click(){
     for (let i = 0; i < this.click_callables.length; i++){
       let is_inside_callable = this.click_callables[i][0];
-      if (!is_inside_callable())
+      if (!is_inside_callable(this.click_internal_states[i]))
         continue;
 
       let call = this.click_callables[i][1];
