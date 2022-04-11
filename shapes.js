@@ -10,6 +10,8 @@ function setup() {
     preload_resources_shapes();
     let canv = createCanvas(canvas_width, canvas_height);
     canv.class('shapes_back');
+    canvas.removeClass('shapes_back');
+
     CHandler = new CallHandler();
     CHandler.add_callable('main_menu_shapes', draw_shapes_menu, -1, {"first":true});
 }
