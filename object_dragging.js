@@ -12,13 +12,23 @@ let obj_back_btts;
 let obj_dotted_lines1;
 let obj_current_act = 0;
 let obj_in_begin = false;
-let obj_funct_user_draw = [];  
-let obj_stars = [];
+let obj_in_beginlv2 = false;
+let obj_in_beginlv3 = false;
+let obj_funct_user_draw= []; 
+let obj_funct_user_drawlv2 = []; 
+let obj_funct_user_drawlv3 = [];
 let obj_first_star = false;
 let obj_second_star = false;
 let obj_third_star_lv1= false;
+let obj_first_starlv2 = false;
+let obj_second_starlv2 = false;
 let obj_third_star_lv2= false;
+let obj_first_starlv3 = false;
+let obj_second_starlv3 = false;
 let obj_third_star_lv3= false;
+let obj_lv2;
+let obj_lv3;
+
 
 
 function setup() {
@@ -38,6 +48,8 @@ function preload(){
   obj_settings = loadImage("assests/settings_tiles_icon.png");
   obj_back_btts = loadImage("assests/back_btts.png");
   obj_dotted_lines1 = loadImage("assests/dotted_lines.png");
+  obj_lv2 = loadImage("assests/lv2.png");
+  obj_lv3 = loadImage("assests/lv3.png");
 }
 
 function main1(){
@@ -59,7 +71,7 @@ function main1(){
     image(obj_game_buttons_lv3, 415, 150, 85, 85);  
   }
   if(obj_third_star_lv3 == true){
-    image(full_star_lv3, 415, 150, 85, 85);  
+    image(obj_full_star_lv3, 415, 150, 85, 85);  
   }
   image(obj_lock_buttons, 550, 150, 90, 90);
   image(obj_settings, 900, 10, 90, 90);
@@ -67,7 +79,7 @@ function main1(){
 
 
 
-function go_into_game(){
+function lv1(){
   image(obj_back_btts, 10, 10, 90, 90);
   image(obj_settings, 900, 10, 90, 90);
   image(obj_dotted_lines1, 200, 300, 650, 650);
@@ -137,45 +149,206 @@ function go_into_game(){
 
 }
   
+function lv2(){
+  image(obj_back_btts, 10, 10, 90, 90);
+  image(obj_settings, 900, 10, 90, 90);
+  image(obj_lv2, 200, 300, 650, 650);
 
+  image(obj_star, 500, 360, 50, 50);
+  image(obj_star, 640, 480, 50, 50);
+  image(obj_star, 815, 615, 50, 50);
+  noStroke();
+  fill(0,0,139);
+  rect(365, 306, 10, 10);
+  fill(0, 255, 255);//end point
+  circle(212, 604, 70);
+
+
+  if(mouseX > 365 && mouseX < 376){
+    if(mouseY > 306 && mouseY < 316){
+      return obj_in_beginlv2 = true;
+    }
+  }
+
+  let x = mouseX;
+  let y = mouseY;
+
+  if(obj_in_beginlv2 == true){
+    fill(0,255,0);
+    circle (x, y, 60);
   
+    for(let i = 0; i < obj_funct_user_drawlv2.length; i++) {//
+      let c = obj_funct_user_drawlv2[i];
+      fill(0,255,0);
+      circle(c.x, c.y, 60);//
+    }
+
+    if(mouseX > 500 && mouseX < 550){
+      if(mouseY > 360 && mouseY < 410){
+        obj_first_starlv2 = true;
+      }
+    }
+
+    if(mouseX > 640 && mouseX < 690){
+      if(mouseY > 480 && mouseY < 530){
+        obj_second_starlv2 = true;
+      }
+    }
+
+    if(mouseX > 815 && mouseX < 865){
+      if(mouseY > 615 && mouseY < 665){
+
+        return obj_third_star_lv2 = true;
+      }
+    }
+  }
+
+  if(obj_third_star_lv2 == true){
+    if(mouseX > 212 && mouseX < 250){
+      if(mouseY > 604 && mouseY < 650){
+        obj_current_act = 0;
+      }
+    }
+  }
+}
+
+function lv3(){
+  image(obj_back_btts, 10, 10, 90, 90);
+  image(obj_settings, 900, 10, 90, 90);
+  image(obj_lv3, 200, 300, 650, 800);
+  image(obj_star, 480, 340, 50, 50);
+  image(obj_star, 525, 760, 50, 50);
+  image(obj_star, 750, 930, 50, 50);
+  noStroke();
+  fill(0,0,139); //begin
+  rect(210, 305, 10, 10);
+  fill(0, 255, 255);//end point
+  circle(280 , 1095 , 70);
+
+
+  if(mouseX > 210 && mouseX < 220){
+    if(mouseY > 305 && mouseY < 315){
+      return obj_in_beginlv3 = true;
+    }
+  }
+
+  let x = mouseX;
+  let y = mouseY;
+
+  if(obj_in_beginlv3 == true){
+    fill(0,255,0);
+    circle (x, y, 60);
+
+    for(let i = 0; i < obj_funct_user_drawlv3.length; i++) {//
+      let c = obj_funct_user_drawlv3[i];
+      fill(0,255,0);
+      circle(c.x, c.y, 60);//
+    }
+
+    if(mouseX > 480 && mouseX < 530){
+      if(mouseY > 340 && mouseY < 390){
+        obj_first_starlv3 = true;
+      }
+    }
+
+    if(mouseX > 525 && mouseX < 575){
+      if(mouseY > 760 && mouseY < 810){
+        obj_second_starlv3 = true;
+      }
+    }
+
+    if(mouseX > 750 && mouseX < 800){
+      if(mouseY > 930 && mouseY < 980){
+
+        return obj_third_star_lv3 = true;
+      }
+    }
+  }
+
+  if(obj_third_star_lv3 == true){
+    if(mouseX > 250  && mouseX < 330){
+      if(mouseY > 1050  && mouseY < 1150){
+        obj_current_act = 0;
+      }
+    }
+  }
+}
 
 function mouseClicked(){
   if(obj_current_act == 0){
-    if(mouseX > 150 && mouseX < 240){
+    if(mouseX > 150 && mouseX < 240){ //go into lv 1
       if(mouseY > 150 && mouseY < 240){
         obj_current_act = 10;         
       }
     }  
+
+    if(mouseX > 285 && mouseX < 365){ //go into lv 2
+      if(mouseY > 150 && mouseY < 240){
+        obj_current_act = 20;         
+      }
+    }
+
+    if(mouseX > 415 && mouseX < 500){ //go into lv 3
+      if(mouseY > 150 && mouseY < 240){
+        obj_current_act = 30;         
+      }
+    } 
   }
-  if(obj_current_act == 10){  
+
+
+  if(obj_current_act == 10){  //lv1
     //backbtt
-   if(obj_third_star_lv1 == false){
    if(mouseX > 10 && mouseX < 100){
     if(mouseY > 10 && mouseY < 100){
       obj_current_act = 0;
      }
    }
+  }
+
+
+  if(obj_current_act == 20){  //lv2
+    //backbtt
+   if(mouseX > 10 && mouseX < 100){
+    if(mouseY > 10 && mouseY < 100){
+      obj_current_act = 0;
+     }
    }
 
-   if(obj_third_star_lv1 == true){
-    if(mouseX > 10 && mouseX < 100){
-      if(mouseY > 10 && mouseY < 100){
-        obj_current_act = 0;
-      }
-     }
-    }
+  } 
 
-  }
+  if(obj_current_act == 30){  //lv3
+    //backbtt
+   if(mouseX > 10 && mouseX < 100){
+    if(mouseY > 10 && mouseY < 100){
+      obj_current_act = 0;
+     }
+   }
+
+  } 
+
 }
 
 
 function mouseDragged() {
-  if(obj_current_act == 10){
+  if(obj_current_act == 10){ //drawing for lv 1
       if(obj_in_begin == true){
         obj_funct_user_draw.push(new p5.Vector(mouseX, mouseY));
         //console.log(mouseX + " "+ mouseY)
         }
+  }
+
+  if(obj_current_act == 20){
+    if(obj_in_beginlv2 == true){
+      obj_funct_user_drawlv2.push(new p5.Vector(mouseX, mouseY));
+      //console.log(mouseX + " "+ mouseY)
+    }
+  }
+
+  if(obj_current_act == 30){
+    if(obj_in_beginlv3 == true){
+      obj_funct_user_drawlv3.push(new p5.Vector(mouseX, mouseY));
+      console.log(mouseX + " "+ mouseY)
+    }
   }
 }
 
@@ -187,7 +360,13 @@ function draw(){
         main1();
         break;
       case 10:
-        go_into_game();
+        lv1();
+        break;
+      case 20:
+        lv2();
+        break;
+      case 30:
+        lv3();
         break;
   }
-  }
+}
