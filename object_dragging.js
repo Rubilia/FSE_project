@@ -1,3 +1,4 @@
+// buttons 
 let obj_background_od;
 let obj_settings;
 let obj_game_buttons_lv1;
@@ -9,14 +10,28 @@ let obj_full_star_lv3;
 let obj_star;
 let obj_lock_buttons;
 let obj_back_btts;
+//
+
+// map
 let obj_dotted_lines1;
+let obj_lv2;
+let obj_lv3;
+//
+
+//action var 
 let obj_current_act = 0;
 let obj_in_begin = false;
 let obj_in_beginlv2 = false;
 let obj_in_beginlv3 = false;
+//
+
+//draw array
 let obj_funct_user_draw= []; 
 let obj_funct_user_drawlv2 = []; 
 let obj_funct_user_drawlv3 = [];
+//
+
+//stars
 let obj_first_star = false;
 let obj_second_star = false;
 let obj_third_star_lv1= false;
@@ -26,13 +41,31 @@ let obj_third_star_lv2= false;
 let obj_first_starlv3 = false;
 let obj_second_starlv3 = false;
 let obj_third_star_lv3= false;
-let obj_lv2;
-let obj_lv3;
+//
+
 
 
 
 function setup() {
   createCanvas(1000, 1300);
+}
+
+function draw(){
+  background(obj_background_od);
+  switch(obj_current_act){
+      case 0:
+        main1();
+        break;
+      case 10:
+        lv1();
+        break;
+      case 20:
+        lv2();
+        break;
+      case 30:
+        lv3();
+        break;
+  }
 }
 
 function preload(){
@@ -56,23 +89,24 @@ function main1(){
   if(obj_third_star_lv1 == false){
     image(obj_game_buttons_lv1, 150, 150, 90, 90);  
   }
-  if(obj_third_star_lv1 == true){
+  if((obj_third_star_lv1 == true) && (obj_second_star == true) &&(obj_first_star == true)){
     image(obj_full_star_lv1, 150, 150, 90, 90);  
   }
 
   if(obj_third_star_lv2 == false){
     image(obj_game_buttons_lv2, 285, 150, 80, 80);  
   }
-  if(obj_third_star_lv2 == true){
+  if((obj_third_star_lv2 == true) && (obj_second_starlv2 == true) &&(obj_first_starlv2 == true)){
     image(obj_full_star_lv2, 285, 150, 80, 80);  
   }
 
   if(obj_third_star_lv3 == false){
     image(obj_game_buttons_lv3, 415, 150, 85, 85);  
   }
-  if(obj_third_star_lv3 == true){
+  if((obj_third_star_lv3 == true) && (obj_second_starlv3 == true) &&(obj_first_starlv3 == true)){
     image(obj_full_star_lv3, 415, 150, 85, 85);  
   }
+
   image(obj_lock_buttons, 550, 150, 90, 90);
   image(obj_settings, 900, 10, 90, 90);
 }
@@ -119,13 +153,13 @@ function lv1(){
 
      if(mouseX > 520 && mouseX < 570){
       if(mouseY > 280 && mouseY < 330){
-        obj_first_star = true;
+        return obj_first_star = true;
       }
     }
 
     if(mouseX > 520 && mouseX < 570){
       if(mouseY > 600 && mouseY < 650){
-        obj_second_star = true;
+        return obj_second_star = true;
       }
     }
 
@@ -139,7 +173,7 @@ function lv1(){
 
   }
 
-  if(obj_third_star_lv1 == true){
+  if((obj_third_star_lv1 == true) && (obj_second_star == true) &&(obj_first_star == true)){
     if(mouseX > 200 && mouseX < 240){
       if(mouseY > 850 && mouseY < 900){
         obj_current_act = 0;
@@ -185,13 +219,13 @@ function lv2(){
 
     if(mouseX > 500 && mouseX < 550){
       if(mouseY > 360 && mouseY < 410){
-        obj_first_starlv2 = true;
+         return obj_first_starlv2 = true;
       }
     }
 
     if(mouseX > 640 && mouseX < 690){
       if(mouseY > 480 && mouseY < 530){
-        obj_second_starlv2 = true;
+        return obj_second_starlv2 = true;
       }
     }
 
@@ -203,7 +237,7 @@ function lv2(){
     }
   }
 
-  if(obj_third_star_lv2 == true){
+  if((obj_third_star_lv2 == true) && (obj_second_starlv2 == true) &&(obj_first_starlv2 == true)){
     if(mouseX > 212 && mouseX < 250){
       if(mouseY > 604 && mouseY < 650){
         obj_current_act = 0;
@@ -247,13 +281,13 @@ function lv3(){
 
     if(mouseX > 480 && mouseX < 530){
       if(mouseY > 340 && mouseY < 390){
-        obj_first_starlv3 = true;
+        return obj_first_starlv3 = true;
       }
     }
 
     if(mouseX > 525 && mouseX < 575){
       if(mouseY > 760 && mouseY < 810){
-        obj_second_starlv3 = true;
+        return obj_second_starlv3 = true;
       }
     }
 
@@ -265,7 +299,7 @@ function lv3(){
     }
   }
 
-  if(obj_third_star_lv3 == true){
+  if((obj_third_star_lv3 == true) && (obj_second_starlv3 == true) &&(obj_first_starlv3 == true)){
     if(mouseX > 250  && mouseX < 330){
       if(mouseY > 1050  && mouseY < 1150){
         obj_current_act = 0;
@@ -330,7 +364,7 @@ function mouseClicked(){
 
 
 function mouseDragged() {
-  if(obj_current_act == 10){ //drawing for lv 1
+  if(obj_current_act == 10){ //drawing
       if(obj_in_begin == true){
         obj_funct_user_draw.push(new p5.Vector(mouseX, mouseY));
         //console.log(mouseX + " "+ mouseY)
@@ -347,26 +381,10 @@ function mouseDragged() {
   if(obj_current_act == 30){
     if(obj_in_beginlv3 == true){
       obj_funct_user_drawlv3.push(new p5.Vector(mouseX, mouseY));
-      console.log(mouseX + " "+ mouseY)
+      //console.log(mouseX + " "+ mouseY)
     }
   }
 }
 
 
-function draw(){
-  background(obj_background_od);
-  switch(obj_current_act){
-      case 0:
-        main1();
-        break;
-      case 10:
-        lv1();
-        break;
-      case 20:
-        lv2();
-        break;
-      case 30:
-        lv3();
-        break;
-  }
-}
+
