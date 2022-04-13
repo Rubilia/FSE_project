@@ -374,7 +374,7 @@ function mouseDragged() {
   if(obj_current_act == 20){
     if(obj_in_beginlv2 == true){
       obj_funct_user_drawlv2.push(new p5.Vector(mouseX, mouseY));
-      //console.log(mouseX + " "+ mouseY)
+      //console.log(mouseX + " "+ mouseY) 
     }
   }
 
@@ -385,6 +385,3 @@ function mouseDragged() {
     }
   }
 }
-
-
-
