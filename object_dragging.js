@@ -23,6 +23,8 @@ let obj_current_act = 0;
 let obj_in_begin = false;
 let obj_in_beginlv2 = false;
 let obj_in_beginlv3 = false;
+let obj_sound_effect;
+let obj_music_on_off = false;
 //
 
 //draw array
@@ -83,6 +85,7 @@ function preload(){
   obj_dotted_lines1 = loadImage("assests/dotted_lines.png");
   obj_lv2 = loadImage("assests/lv2.png");
   obj_lv3 = loadImage("assests/lv3.png");
+  obj_sound_effect = new Audio("assests/[YT2mp3.info] - boom sound effect (320kbps).mp3")
 }
 
 function main1(){
@@ -153,24 +156,28 @@ function lv1(){
 
      if(mouseX > 520 && mouseX < 570){
       if(mouseY > 280 && mouseY < 330){
-        return obj_first_star = true;
+        obj_music_on_off = true;
+        obj_first_star = true;
+        return;
       }
     }
 
     if(mouseX > 520 && mouseX < 570){
       if(mouseY > 600 && mouseY < 650){
-        return obj_second_star = true;
+         obj_second_star = true;
+         obj_music_on_off = true;
+         return;
       }
     }
 
     if(mouseX > 520 && mouseX < 570){
       if(mouseY > 920 && mouseY < 970){
-
-        return obj_third_star_lv1 = true;
+        obj_music_on_off = true;
+        obj_third_star_lv1 = true;
+        return;
       }
     }
- 
-
+    play_sound();
   }
 
   if((obj_third_star_lv1 == true) && (obj_second_star == true) &&(obj_first_star == true)){
@@ -219,27 +226,34 @@ function lv2(){
 
     if(mouseX > 500 && mouseX < 550){
       if(mouseY > 360 && mouseY < 410){
-         return obj_first_starlv2 = true;
+        obj_music_on_off = true;
+        obj_first_starlv2 = true;
+        return;
       }
     }
 
     if(mouseX > 640 && mouseX < 690){
       if(mouseY > 480 && mouseY < 530){
-        return obj_second_starlv2 = true;
+        obj_music_on_off = true;
+        obj_second_starlv2 = true;
+        return;
       }
     }
 
     if(mouseX > 815 && mouseX < 865){
       if(mouseY > 615 && mouseY < 665){
-
-        return obj_third_star_lv2 = true;
+        obj_music_on_off = true;
+        obj_third_star_lv2 = true;
+        return;
       }
     }
+    play_sound();
   }
 
   if((obj_third_star_lv2 == true) && (obj_second_starlv2 == true) &&(obj_first_starlv2 == true)){
     if(mouseX > 212 && mouseX < 250){
       if(mouseY > 604 && mouseY < 650){
+        obj_sound_effect.play();
         obj_current_act = 0;
       }
     }
@@ -281,22 +295,28 @@ function lv3(){
 
     if(mouseX > 480 && mouseX < 530){
       if(mouseY > 340 && mouseY < 390){
-        return obj_first_starlv3 = true;
+        obj_music_on_off = true;
+       obj_first_starlv3 = true;
+       return;
       }
     }
 
     if(mouseX > 525 && mouseX < 575){
       if(mouseY > 760 && mouseY < 810){
-        return obj_second_starlv3 = true;
+        obj_music_on_off = true;
+       obj_second_starlv3 = true;
+       return;
       }
     }
 
     if(mouseX > 750 && mouseX < 800){
       if(mouseY > 930 && mouseY < 980){
-
-        return obj_third_star_lv3 = true;
+        obj_music_on_off = true;
+       obj_third_star_lv3 = true;
+       return;
       }
     }
+    play_sound();
   }
 
   if((obj_third_star_lv3 == true) && (obj_second_starlv3 == true) &&(obj_first_starlv3 == true)){
@@ -383,5 +403,14 @@ function mouseDragged() {
       obj_funct_user_drawlv3.push(new p5.Vector(mouseX, mouseY));
       //console.log(mouseX + " "+ mouseY)
     }
+  }
+}
+
+function play_sound(){ 
+  if(obj_music_on_off == true){
+  obj_sound_effect.play();
+  obj_sound_effect.loop = false;
+  console.log("l");
+  return obj_music_on_off = false;
   }
 }
