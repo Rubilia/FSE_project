@@ -274,6 +274,7 @@ function main_menu_handler(){
           else{
             args["sound_btn"] = createImg('assets/sound.jpg');
           }
+          args["sound_btn"].size(80, 80);
           args["sound_btn"].position(canvas_width / 2 - 50, 420);
           args["sound_btn"].mouseClicked(sound_callback);
           args["sound_btn"].class("sound_btn");
@@ -290,6 +291,7 @@ function main_menu_handler(){
             args["sound_btn"].mouseClicked(sound_callback);
         }
         args["sound_btn"].class("sound_btn");
+        args["sound_btn"].size(80, 80);
     }
 
     // Draw the window itself
