@@ -85,7 +85,7 @@ function preload(){
   obj_dotted_lines1 = loadImage("assests/dotted_lines.png");
   obj_lv2 = loadImage("assests/lv2.png");
   obj_lv3 = loadImage("assests/lv3.png");
-  obj_sound_effect = new Audio("assests/[YT2mp3.info] - boom sound effect (320kbps).mp3")
+  obj_sound_effect = new Audio("assests/[YT2mp3.info] - Pop sound effect _ No copyright (320kbps).mp3")
 }
 
 function main1(){
@@ -253,7 +253,6 @@ function lv2(){
   if((obj_third_star_lv2 == true) && (obj_second_starlv2 == true) &&(obj_first_starlv2 == true)){
     if(mouseX > 212 && mouseX < 250){
       if(mouseY > 604 && mouseY < 650){
-        obj_sound_effect.play();
         obj_current_act = 0;
       }
     }
