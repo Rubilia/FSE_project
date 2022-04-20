@@ -147,6 +147,11 @@ function main_menu_menu_draw(args){
                 CHandler.add_callable('main_menu_shapes', draw_shapes_menu, -1, {"first":true});
                 canvas.class('shapes_back');
             }
+            else if (game == 2){
+                CHandler.reset_callbacks();
+                CHandler.add_callable('object_dragging_game', draw_object_dragging, -1, {});
+                CHandler.add_clickable_region('object_dragging', (() => {return true;}), mouseClicked_object_dragging, {});
+            }
             else{
                 return;
             }

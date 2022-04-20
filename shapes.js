@@ -75,7 +75,6 @@ class Polygon{
       fill(color("rgba(0, 0, 0, 1)"));
       for(let i = 0; i < this.n; i++){
         circle(this.coordinates[i][0], this.coordinates[i][1], min(this.r / 10, 12));
-        // vertex(this.coordinates[i][0], this.coordinates[i][1]);
       }
   }
 

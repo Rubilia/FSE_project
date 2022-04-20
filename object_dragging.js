@@ -45,14 +45,9 @@ let obj_second_starlv3 = false;
 let obj_third_star_lv3= false;
 //
 
+function draw_object_dragging(args){
+  CHandler.add_clickable_region('object_dragging', (() => {return true;}), mouseClicked_object_dragging, {});
 
-
-
-function setup() {
-  createCanvas(1000, 1300);
-}
-
-function draw(){
   background(obj_background_od);
   switch(obj_current_act){
       case 0:
@@ -68,6 +63,7 @@ function draw(){
         lv3();
         break;
   }
+  return args;
 }
 
 function preload(){
@@ -112,6 +108,15 @@ function main1(){
 
   image(obj_lock_buttons, 550, 150, 90, 90);
   image(obj_settings, 900, 10, 90, 90);
+
+  image(quit_btn, 10, canvas_height - 90, 80, 80);
+  CHandler.add_clickable_region("quit_btn", ((args) => {
+      return abs(mouseX - 50) <= 40 && abs(mouseY - canvas_height + 50);
+  }), ((args) => {
+      location.reload();      
+      return args;
+  }), {});
+
 }
 
 
@@ -327,7 +332,7 @@ function lv3(){
   }
 }
 
-function mouseClicked(){
+function mouseClicked_object_dragging(){
   if(obj_current_act == 0){
     if(mouseX > 150 && mouseX < 240){ //go into lv 1
       if(mouseY > 150 && mouseY < 240){
