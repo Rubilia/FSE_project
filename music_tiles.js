@@ -84,7 +84,7 @@ function setup() {
 }
 
 function main_menu_menu_draw(args){
-    image(bg, 0, 0, canvas_width, canvas_height);
+    document.body.classList.add('main_menu_bg');
 
     // Draw game buttons
     image(music_tiles_btn_start, 100, 500, 250, 250);
@@ -135,23 +135,26 @@ function main_menu_menu_draw(args){
         main_menu_start_btn = createButton('<span>🇸​​​​​🇹​​​​​🇦​​​​​🇷​​​​​🇹​​​​​</span>');
         main_menu_start_btn.style("vertical-align:middle")
         main_menu_start_btn.class("game_over_btn")
-        main_menu_start_btn.position(canvas_width / 2 + 30, canvas_height - 150);
+        main_menu_start_btn.position(canvas_width / 2 + 30, canvas_height - 190);
         main_menu_start_btn.mouseClicked(() => {
             main_menu_start_btn.hide();
             if (game == 0){
                 CHandler.reset_callbacks();
                 main_menu_handler();
+                document.body.classList.remove('main_menu_bg');
             }
             else if (game == 3){
                 CHandler.reset_callbacks();
                 CHandler.add_callable('main_menu_shapes', draw_shapes_menu, -1, {"first":true});
                 canvas.class('shapes_back');
+                document.body.classList.remove('main_menu_bg');
             }
             else if (game == 2){
                 CHandler.reset_callbacks();
                 CHandler.add_callable('object_dragging_game', draw_object_dragging, -1, {});
                 CHandler.add_clickable_region('object_dragging', (() => {return true;}), mouseClicked_object_dragging, {});
-            }
+                document.body.classList.remove('main_menu_bg');
+              }
             else{
                 return;
             }

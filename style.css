@@ -256,3 +256,8 @@ Game over button
 .hidden {
   visibility: hidden;
 }
+
+.main_menu_bg {
+  background-image:url('assets/main_bg.gif'); 
+  background-repeat:no-repeat;
+}
