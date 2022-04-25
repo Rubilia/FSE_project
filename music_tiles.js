@@ -96,18 +96,18 @@ function main_menu_menu_draw(args){
     }), {});
 
 
-    image(drive_dodge_btn_start, 100, 640, 250, 250);
-    CHandler.add_clickable_region("start_drive_dodge", (() => {
-        return (abs(mouseX - 225) <= 125 && abs(mouseY - 765) <= 60);
-    }), (() => {    
-        preview_src = 'assets/not_implemented.webp';
-        game = 1;
-    }), {});
+    // image(drive_dodge_btn_start, 100, 640, 250, 250);
+    // CHandler.add_clickable_region("start_drive_dodge", (() => {
+    //     return (abs(mouseX - 225) <= 125 && abs(mouseY - 765) <= 60);
+    // }), (() => {    
+    //     preview_src = 'assets/not_implemented.webp';
+    //     game = 1;
+    // }), {});
 
 
-    image(object_dragging_btn_start, 100, 780, 250, 250);
+    image(object_dragging_btn_start, 100, 640, 250, 250);
     CHandler.add_clickable_region("start_object_dragging", (() => {
-        return (abs(mouseX - 225) <= 125 && abs(mouseY - 905) <= 60);
+        return (abs(mouseX - 225) <= 125 && abs(mouseY - 765) <= 60);
     }), (() => {    
         preview_src = 'assets/not_implemented.webp';
         game = 2;
@@ -115,9 +115,9 @@ function main_menu_menu_draw(args){
 
 
 
-    image(shapes_btn_start, 100, 920, 250, 250);
+    image(shapes_btn_start, 100, 780, 250, 250);
     CHandler.add_clickable_region("start_shapes", (() => {
-        return (abs(mouseX - 225) <= 125 && abs(mouseY - 1045) <= 60);
+        return (abs(mouseX - 225) <= 125 && abs(mouseY - 905) <= 60);
     }), (() => {    
         preview_src = 'assets/not_implemented.webp';
         game = 3;
