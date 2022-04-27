@@ -96,20 +96,11 @@ function main_menu_menu_draw(args){
     }), {});
 
 
-    // image(drive_dodge_btn_start, 100, 640, 250, 250);
-    // CHandler.add_clickable_region("start_drive_dodge", (() => {
-    //     return (abs(mouseX - 225) <= 125 && abs(mouseY - 765) <= 60);
-    // }), (() => {    
-    //     preview_src = 'assets/not_implemented.webp';
-    //     game = 1;
-    // }), {});
-
-
     image(object_dragging_btn_start, 100, 640, 250, 250);
     CHandler.add_clickable_region("start_object_dragging", (() => {
         return (abs(mouseX - 225) <= 125 && abs(mouseY - 765) <= 60);
     }), (() => {    
-        preview_src = 'assets/not_implemented.webp';
+        preview_src = 'assets/obj_dragging_preview.png';
         game = 2;
     }), {});
 
@@ -119,7 +110,7 @@ function main_menu_menu_draw(args){
     CHandler.add_clickable_region("start_shapes", (() => {
         return (abs(mouseX - 225) <= 125 && abs(mouseY - 905) <= 60);
     }), (() => {    
-        preview_src = 'assets/not_implemented.webp';
+        preview_src = 'assets/shapes_preview.jpg';
         game = 3;
     }), {});
 
@@ -202,7 +193,7 @@ function preload_images(){
     object_dragging_btn_start = loadImage('assets/object dragging.png');
     shapes_btn_start = loadImage('assets/shape.png');
 
-    preview_imgs = {'assets/tiles_preview.jpg': loadImage('assets/tiles_preview.jpg'), 'assets/not_implemented.webp': loadImage('assets/not_implemented.webp')};
+    preview_imgs = {'assets/tiles_preview.jpg': loadImage('assets/tiles_preview.jpg'), 'assets/not_implemented.webp': loadImage('assets/not_implemented.webp'), 'assets/shapes_preview.jpg': loadImage('assets/shapes_preview.jpg'), 'assets/obj_dragging_preview.png': loadImage('assets/obj_dragging_preview.png')};
     shapes_font = loadFont('assets/Fonts/pdark.ttf');
     quit_btn = loadImage('assets/quit_btn.png');
 }
